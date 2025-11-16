@@ -20,19 +20,21 @@ onAuthStateChanged(auth, async (user) => {
 
 // Load teachers from Firestore
 async function loadTeachers() {
-  try {
-    const querySnapshot = await getDocs(collection(db, "teachers"));
+  const teacherList = document.getElementById("teacherSelect");
 
-    teacherSelect.innerHTML = `<option value="">Select Teacher</option>`;
+  const querySnapshot = await getDocs(collection(db, "teachers"));
+  teacherList.innerHTML = '<option value="">-- Choose a teacher --</option>';
 
-    querySnapshot.forEach((doc) => {
-      const t = doc.data();
-      teacherSelect.innerHTML += `
-        <option value="${doc.id}">
-          ${t.name} (${t.subject})
-        </option>
-      `;
-    });
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    teacherList.innerHTML += `
+      <option value="${doc.id}">
+        ${data.name} — ${data.subject}
+      </option>
+    `;
+  });
+}
+
 
     console.log("Teachers loaded");
   } catch (error) {
