@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+
+  <h1>Welcome Student</h1>
+  <a href="book.html">Book Appointment</a>
+  <button id="logout-btn">Logout</button>
+
+  <script type="module">
+    import { auth } from "./js/firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "index.html");
+    });
+  </script>
+
+</body>
+</html>

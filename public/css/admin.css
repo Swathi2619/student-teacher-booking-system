@@ -1,0 +1,185 @@
+/* ---------- GLOBAL ---------- */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+h2 {
+  margin-top: 35px;
+  margin-bottom: 12px;
+  color: #444;
+}
+
+/* ---------- FORM ---------- */
+form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #eee;
+}
+
+form input {
+  padding: 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+}
+
+form input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 6px rgba(108, 99, 255, 0.4);
+}
+
+form button {
+  padding: 12px;
+  background: #6c63ff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+form button:hover {
+  background: #584fe2;
+}
+
+/* ---------- TEACHER LIST ---------- */
+#teacher-list {
+  margin-top: 18px;
+}
+
+.teacher-item {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  gap: 25px;
+  align-items: center;
+
+  background: #fff;
+  padding: 15px 18px;
+  margin-bottom: 12px;
+
+  border-left: 5px solid #6c63ff;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-item span {
+  font-size: 16px;
+  color: #333;
+}
+
+.teacher-item button {
+  background: #ff4d4d;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.teacher-item button:hover {
+  background: #d93636;
+}
+
+/* ---------- BOOKING CARDS ---------- */
+#admin-booking-list {
+  margin-top: 20px;
+}
+
+.booking-item {
+  background: #fff;
+  padding: 18px 20px;
+  margin-bottom: 15px;
+
+  border-left: 5px solid #00b894;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.booking-item p {
+  margin: 5px 0;
+}
+
+.booking-item small {
+  display: block;
+  margin: 3px 0;
+  opacity: 0.8;
+}
+
+.accept-btn,
+.reject-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.accept-btn {
+  background: #00b894;
+  color: white;
+}
+
+.reject-btn {
+  background: #ff4d4d;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #009f7a;
+}
+
+.reject-btn:hover {
+  background: #d93636;
+}
+
+/* ---------- LOGOUT ---------- */
+#logout-btn {
+  display: block;
+  margin: 30px auto 0;
+  width: 100%;
+  padding: 12px;
+  background: #333;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#logout-btn:hover {
+  background: #222;
+}
+
+/* ---------- MOBILE RESPONSIVE ---------- */
+@media (max-width: 600px) {
+  .teacher-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .booking-item {
+    padding: 15px;
+  }
+}

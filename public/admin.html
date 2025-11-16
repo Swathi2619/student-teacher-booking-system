@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+
+  <!-- Your admin.css -->
+  <link rel="stylesheet" href="./css/admin.css" />
+</head>
+
+<body>
+  <main>
+    <h1>📊 Admin Dashboard</h1>
+
+    <!-- ================= TEACHER FORM ================= -->
+    <section>
+      <h2>👩‍🏫 Add Teacher</h2>
+
+      <form id="teacher-form">
+        <input type="text" name="name" placeholder="Teacher Name" required />
+        <input type="email" name="email" placeholder="Teacher Email" required /> <!-- FIXED -->
+        <input type="text" name="department" placeholder="Department" required />
+        <input type="text" name="subject" placeholder="Subject" required />
+        <button type="submit">Add Teacher</button>
+      </form>
+
+      <p id="teacher-result"></p>
+
+      <h2>All Teachers</h2>
+      <div id="teacher-list"></div>
+    </section>
+
+    <hr />
+
+    <!-- ================= BOOKINGS ================= -->
+    <section>
+      <h2>📅 Appointments</h2>
+      <div id="admin-booking-list"></div>
+    </section>
+
+    <button id="logout-btn">Logout</button>
+  </main>
+
+  <!-- Correct JS Path -->
+  <script type="module" src="./js/admin.js"></script>
+</body>
+</html>

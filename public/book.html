@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Appointment — Student-Teacher Booking</title>
+  <link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+  <main>
+    <h1>📚 Book Appointment</h1>
+
+    <section id="booking-section">
+      <form id="booking-form">
+        <label>Student Name</label>
+        <input type="text" id="studentName" placeholder="Your name" required />
+
+        <label>Email</label>
+        <input type="email" id="studentEmail" placeholder="Your email" required />
+
+        <label>Select Teacher</label>
+        <select id="teacherSelect" required>
+          <option value="">-- Choose a teacher --</option>
+        </select>
+
+        <label>Subject / Topic</label>
+        <input type="text" id="subject" placeholder="Enter subject" required />
+
+        <label>Message</label>
+        <textarea id="message" placeholder="Add any details" rows="4"></textarea>
+
+        <button type="submit">Book Appointment</button>
+      </form>
+
+      <div id="booking-result"></div>
+    </section>
+
+    <hr/>
+
+    <section id="session">
+      <div id="user-info">Logged in</div>
+      <button id="logout-btn">Logout</button>
+    </section>
+  </main>
+
+  <script type="module" src="./js/book.js"></script>
+</body>
+</html>
