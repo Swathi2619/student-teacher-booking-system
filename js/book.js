@@ -1,91 +1,95 @@
-import { db, auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-import {
-  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-const teacherSelect = document.getElementById("teacherSelect");
-const bookingForm = document.getElementById("booking-form");
-const bookingResult = document.getElementById("booking-result");
-const logoutBtn = document.getElementById("logout-btn");
-const userInfo = document.getElementById("user-info");
+import {
+  collection,
+  getDocs,
+  addDoc,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
+const teacherSelect = document.getElementById("teacher");
+const bookingForm = document.getElementById("booking-form");
+
+// ---------------------------------------------------
+// WAIT UNTIL AUTH IS READY BEFORE LOADING TEACHERS
+// ---------------------------------------------------
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  } else {
-    document.getElementById("studentEmail").value = user.email;
-    userInfo.textContent = `Logged in as ${user.email}`;
+  if (user) {
+    console.log("User logged in:", user.uid);
     loadTeachers();
+  } else {
+    console.log("User not logged in");
+    teacherSelect.innerHTML = `<option disabled selected>Login required</option>`;
   }
 });
 
+// ---------------------------------------------------
+// LOAD TEACHERS FROM FIRESTORE
+// ---------------------------------------------------
 async function loadTeachers() {
-  teacherSelect.innerHTML = `<option value="">-- Choose a teacher --</option>`;
+  teacherSelect.innerHTML = `<option disabled selected>Loading...</option>`;
 
-  const usersRef = collection(db, "users");
-  const querySnapshot = await getDocs(usersRef);
+  try {
+    const teacherRef = collection(db, "teachers");
+    const snapshot = await getDocs(teacherRef);
 
-  querySnapshot.forEach((docSnap) => {
-    const data = docSnap.data();
+    teacherSelect.innerHTML = ""; // clear first
 
-    if (data.role === "teacher") {
-      const option = document.createElement("option");
-      option.value = docSnap.id; // UID
-      option.textContent = data.name;
-      teacherSelect.appendChild(option);
+    if (snapshot.empty) {
+      teacherSelect.innerHTML =
+        `<option disabled selected>No teachers available</option>`;
+      return;
     }
-  });
+
+    snapshot.forEach((doc) => {
+      const t = doc.data();
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = `${t.name} (${t.department})`;
+      teacherSelect.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error("Error loading teachers:", err);
+    teacherSelect.innerHTML =
+      `<option disabled selected>Error loading teachers</option>`;
+  }
 }
 
+// ---------------------------------------------------
+// BOOKING FORM SUBMISSION
+// ---------------------------------------------------
 bookingForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const studentName = document.getElementById("studentName").value;
-  const studentEmail = document.getElementById("studentEmail").value;
-  const teacherId = teacherSelect.value;
-  const subject = document.getElementById("subject").value;
-  const message = document.getElementById("message").value;
-
-  if (!teacherId) {
-    bookingResult.textContent = "Please select a teacher.";
-    bookingResult.style.color = "red";
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Please log in first.");
     return;
   }
 
-  try {
-    const teacherDoc = await getDoc(doc(db, "users", teacherId));
-    const teacherEmail = teacherDoc.exists() ? teacherDoc.data().email : "";
+  const teacherId = teacherSelect.value;
+  const date = document.getElementById("date").value;
+  const reason = document.getElementById("reason").value;
 
+  try {
     await addDoc(collection(db, "bookings"), {
-      studentName,
-      studentEmail,
-      teacherEmail,
-      teacherId,        // ⭐ MOST IMPORTANT FIX
-      subject,
-      message,
+      studentId: user.uid,
+      teacherId,
+      date,
+      reason,
       status: "Pending",
-      timestamp: new Date(),
+      createdAt: Timestamp.now()
     });
 
-    bookingResult.textContent = "✅ Appointment booked successfully!";
-    bookingResult.style.color = "green";
+    alert("Booking Successful!");
     bookingForm.reset();
-  } catch (error) {
-    console.error(error);
-    bookingResult.textContent = "❌ Failed to book appointment.";
-    bookingResult.style.color = "red";
-  }
-});
 
-logoutBtn.addEventListener("click", () => {
-  signOut(auth).then(() => (window.location.href = "index.html"));
+  } catch (err) {
+    console.error("Error booking:", err);
+    alert("Failed to book. Check console.");
+  }
 });
