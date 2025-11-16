@@ -1,95 +1,76 @@
 import { auth, db } from "./firebase-config.js";
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+import { collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-import {
-  collection,
-  getDocs,
-  addDoc,
-  Timestamp
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-const teacherSelect = document.getElementById("teacher");
+// DOM elements
+const teacherSelect = document.getElementById("teacher-select");
 const bookingForm = document.getElementById("booking-form");
 
-// ---------------------------------------------------
-// WAIT UNTIL AUTH IS READY BEFORE LOADING TEACHERS
-// ---------------------------------------------------
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("User logged in:", user.uid);
-    loadTeachers();
-  } else {
-    console.log("User not logged in");
-    teacherSelect.innerHTML = `<option disabled selected>Login required</option>`;
-  }
-});
-
-// ---------------------------------------------------
-// LOAD TEACHERS FROM FIRESTORE
-// ---------------------------------------------------
-async function loadTeachers() {
-  teacherSelect.innerHTML = `<option disabled selected>Loading...</option>`;
-
-  try {
-    const teacherRef = collection(db, "teachers");
-    const snapshot = await getDocs(teacherRef);
-
-    teacherSelect.innerHTML = ""; // clear first
-
-    if (snapshot.empty) {
-      teacherSelect.innerHTML =
-        `<option disabled selected>No teachers available</option>`;
-      return;
-    }
-
-    snapshot.forEach((doc) => {
-      const t = doc.data();
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = `${t.name} (${t.department})`;
-      teacherSelect.appendChild(option);
-    });
-
-  } catch (err) {
-    console.error("Error loading teachers:", err);
-    teacherSelect.innerHTML =
-      `<option disabled selected>Error loading teachers</option>`;
-  }
-}
-
-// ---------------------------------------------------
-// BOOKING FORM SUBMISSION
-// ---------------------------------------------------
-bookingForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const user = auth.currentUser;
+// Wait for auth before loading teachers
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("Please log in first.");
+    console.log("User not logged in");
     return;
   }
 
+  console.log("Logged in as:", user.email);
+
+  loadTeachers(); // call after auth
+});
+
+// Load teachers from Firestore
+async function loadTeachers() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "teachers"));
+
+    teacherSelect.innerHTML = `<option value="">Select Teacher</option>`;
+
+    querySnapshot.forEach((doc) => {
+      const t = doc.data();
+      teacherSelect.innerHTML += `
+        <option value="${doc.id}">
+          ${t.name} (${t.subject})
+        </option>
+      `;
+    });
+
+    console.log("Teachers loaded");
+  } catch (error) {
+    console.error("Error loading teachers:", error);
+    alert("Cannot load teachers. Permission denied.");
+  }
+}
+
+// Submit booking
+bookingForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
   const teacherId = teacherSelect.value;
-  const date = document.getElementById("date").value;
-  const reason = document.getElementById("reason").value;
+  const date = bookingForm.date.value;
+  const reason = bookingForm.reason.value;
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Not logged in!");
+    return;
+  }
 
   try {
     await addDoc(collection(db, "bookings"), {
-      studentId: user.uid,
       teacherId,
       date,
       reason,
-      status: "Pending",
-      createdAt: Timestamp.now()
+      studentId: user.uid,
+      studentEmail: user.email,
+      status: "pending",
+      createdAt: new Date().toISOString()
     });
 
-    alert("Booking Successful!");
+    alert("Booking submitted!");
     bookingForm.reset();
-
-  } catch (err) {
-    console.error("Error booking:", err);
-    alert("Failed to book. Check console.");
+  } catch (error) {
+    console.error(error);
+    alert("Error submitting booking");
   }
 });
