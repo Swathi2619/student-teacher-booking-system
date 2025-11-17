@@ -3,7 +3,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/f
 import { collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 // DOM elements
-const teacherSelect = document.getElementById("teacher-select");
+const teacherSelect = document.getElementById("teacherSelect"); // matches your HTML
 const bookingForm = document.getElementById("booking-form");
 
 // Wait for auth before loading teachers
@@ -14,27 +14,25 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   console.log("Logged in as:", user.email);
-
-  loadTeachers(); // call after auth
+  await loadTeachers(); // load teachers after auth
 });
 
 // Load teachers from Firestore
 async function loadTeachers() {
-  const teacherList = document.getElementById("teacherSelect");
+  try {
+    const teacherList = document.getElementById("teacherSelect");
 
-  const querySnapshot = await getDocs(collection(db, "teachers"));
-  teacherList.innerHTML = '<option value="">-- Choose a teacher --</option>';
+    const querySnapshot = await getDocs(collection(db, "teachers"));
+    teacherList.innerHTML = '<option value="">-- Choose a teacher --</option>';
 
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    teacherList.innerHTML += `
-      <option value="${doc.id}">
-        ${data.name} — ${data.subject}
-      </option>
-    `;
-  });
-}
-
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      teacherList.innerHTML += `
+        <option value="${doc.id}">
+          ${data.name} — ${data.subject}
+        </option>
+      `;
+    });
 
     console.log("Teachers loaded");
   } catch (error) {
@@ -48,8 +46,10 @@ bookingForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const teacherId = teacherSelect.value;
-  const date = bookingForm.date.value;
-  const reason = bookingForm.reason.value;
+  const studentName = document.getElementById("studentName").value.trim();
+  const studentEmail = document.getElementById("studentEmail").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const message = document.getElementById("message").value.trim();
 
   const user = auth.currentUser;
 
@@ -58,21 +58,27 @@ bookingForm.addEventListener("submit", async (e) => {
     return;
   }
 
+  if (!teacherId) {
+    alert("Please select a teacher.");
+    return;
+  }
+
   try {
     await addDoc(collection(db, "bookings"), {
       teacherId,
-      date,
-      reason,
+      studentName,
+      studentEmail,
+      subject,
+      message,
       studentId: user.uid,
-      studentEmail: user.email,
-      status: "pending",
+      status: "Pending",
       createdAt: new Date().toISOString()
     });
 
-    alert("Booking submitted!");
+    alert("Booking submitted successfully!");
     bookingForm.reset();
   } catch (error) {
-    console.error(error);
-    alert("Error submitting booking");
+    console.error("Error submitting booking:", error);
+    alert("Error submitting booking. Please try again.");
   }
 });
